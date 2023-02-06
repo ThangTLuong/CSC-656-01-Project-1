@@ -9,23 +9,10 @@
 
 #include <iostream>
 #include <unistd.h>
-#include <random>
 
 #define     ARRAYSIZE         10
-#define     MIN               1
-#define     MAX               9
 
 using namespace std;
-
-
-// Generates a random number.
-// A pseudo random number generator.
-int generateRandomNumber (int min, int max) {
-   random_device randomDevice;
-   uniform_int_distribution<int> dist(min, max);
-  
-  return dist(randomDevice);
-}
 
 // Overload the << operator to print out all the element in the array instead
 // of printing out its address.
@@ -39,10 +26,7 @@ ostream& operator<< (ostream& os, const int (&array)[ARRAYSIZE]) {
 
 int main (int argc, char **argv) {
    // int a[] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // replace with your own random 10 ints from www.calculator.net/random-number-generator.html
-   int array[ARRAYSIZE];
-
-   for (int i = 0; i < ARRAYSIZE; i++) 
-      array[i] = generateRandomNumber(MIN, MAX);
+   int array[ARRAYSIZE] = {52, 26, 70, 29, 46, 16, 88, 64, 20, 44};
 
    // print out the contents of a before the sort
    // insert your code here
@@ -61,6 +45,6 @@ int main (int argc, char **argv) {
    // print out the contents of a after the sort
    // insert your code here
 
-   cout <<" a after sort " << "\n" << array;
+   cout << " an after sort " << "\n" << array;
 }
 // EOF
