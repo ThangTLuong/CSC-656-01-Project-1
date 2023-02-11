@@ -53,7 +53,7 @@ innerloop:
 	sub	$s5, $s2, $s0			# $s5 = arrSize - i
 	sub	$s5, $s5, 1			# $s5 = $s5 - 1
 	bge	$s1, $s5, exitinnerloop		# for (j < arrSize - i - 1) {		# Exit inner loop if $s1 is greater or equal to arrSize - $s0 - 1
-	
+
 	lw	$s5, ($s4)			# array[j]
 	lw	$s6, 4($s4)			# array[j+1]
 	ble	$s5, $s6, noswap		# if (array[j] > array[j+1])		# If array[j] is less than or equal to array[j+1], then no swap necessary, jump to noswap
@@ -61,9 +61,12 @@ innerloop:
 	move	$a0, $s4			# swap (array[j], array[j+1])		# Calling the swap function, since I'm swapping values in the memory, I just pass in the array pointer
 	jal	swap
 
-noswap:
-	addi	$s4, $s4, 4			#					# Increments the array pointer
+noswap:			
 	addi	$s1, $s1, 1			# j++					# Increment j
+	
+	move	$s4, $s3			#					# Reset the pointer's position. 
+	sll	$at, $s1, 2			#					# Originally, I had it as addi $s4, $s4, 4 to increment the address, but that's not relative to j
+	add	$s4, $s4, $at			#					# Increments the array pointer
 	blt	$s1, $s5, innerloop		# j < arrSize - i - 1			# Jumps back to the beginning of the innerloop if j < arrSize - i - 1
 						# }
 		
@@ -75,7 +78,8 @@ exitinnerloop:
 exitloop:					# }					# Outerloop finished
 	li	$v0, 4
 	la	$a0, newline			
-	syscall					# cout << "\n"
+	syscall					# 
+	syscall					# cout << "\n" << "\n"
 	la	$a0, after
 	syscall					# cout << " an after sort "
 	la	$a0, newline
@@ -93,17 +97,21 @@ print:						# ostream& operator<< (ostream& os, const int (&array)[ARRAYSIZE]) {
 	
 	li 	$t0, 0				# int i = 0
 	la 	$t1, array
+	move	$t2, $t1
 printloop:					# for (i < arrSize)
 	li 	$v0, 1				
-	lw 	$a0, ($t1)			
+	lw 	$a0, ($t2)			
 	syscall					# cout << array[i]
 	
 	li 	$v0, 4
 	la 	$a0, space
 	syscall 				# cout << " "
 	
-	addi 	$t1, $t1, 4			# 					# Increments the array pointer
 	addi 	$t0, $t0, 1			# i++					# Increments i
+	
+	move	$t2, $t1			#					# Reset the pointer's position
+	sll	$t3, $t0, 2
+	add	$t2, $t2, $t3			# 					# Increments the array pointer
 	blt	$t0, 10, printloop
 	
 exitprint:
@@ -114,30 +122,32 @@ exitprint:
 
 
 swap:						# swap (int &left, int &right) {	# 
-	sw	$s0, -4($sp)			# 					# Starts a new stack frame for the swap function or subroutine
-	sw	$s1, -8($sp)			#					# I'm not sure why though. Isn't this swap subroutine a callee/leaf function?
-	sw	$s2, -12($sp)			#					# Since it doesn't call any other function.
-	sw	$s3, -16($sp)			#					# So shouldn't it be using the $t registers?
-	sw	$s4, -20($sp)			#					# But whatever, I'll just follow the grading rubric.
-	sw	$s5, -24($sp)
-	sw	$s6, -28($sp)
-	sw	$ra, -32($sp)
-	add	$sp, $sp, -32
+#	sw	$s0, -4($sp)			# 					# Starts a new stack frame for the swap function or subroutine
+#	sw	$s1, -8($sp)			#					# 
+#	sw	$s2, -12($sp)			#					# 
+#	sw	$s3, -16($sp)			#					# 
+#	sw	$s4, -20($sp)			#					# 
+#	sw	$s5, -24($sp)
+#	sw	$s6, -28($sp)
+#	sw	$s7, -32($sp)
+#	sw	$ra, -36($sp)
+#	addi	$sp, $sp, -36
 		
-	lw 	$s0, ($a0)			#   temp = left;			#
-	lw	$s1, 4($a0)
-	sw	$s0, 4($a0)			#   left = right;			#
-	sw	$s1, ($a0)			#   right = temp;			#
+	lw 	$t0, ($a0)			#   temp = left;			#
+	lw	$t1, 4($a0)
+	sw	$t0, 4($a0)			#   left = right;			#
+	sw	$t1, ($a0)			#   right = temp;			#
 	
-	lw	$ra, ($sp)
-	lw	$s6, 4($sp)
-	lw	$s5, 8($sp)
-	lw	$s4, 12($sp)
-	lw	$s3, 16($sp)
-	lw	$s2, 20($sp)
-	lw	$s1, 24($sp)
-	lw	$s0, 28($sp)
-	add	$sp, $sp, 28
+#	lw	$ra, ($sp)
+#	lw	$s7, 4($sp)
+#	lw	$s6, 8($sp)
+#	lw	$s5, 12($sp)
+#	lw	$s4, 16($sp)
+#	lw	$s3, 20($sp)
+#	lw	$s2, 24($sp)
+#	lw	$s1, 28($sp)
+#	lw	$s0, 32($sp)
+#	addi	$sp, $sp, 32
 	
 	jr 	$ra				# }					#
 
